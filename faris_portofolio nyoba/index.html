@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PORTFOLIO FARIS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+        }
+
+        /* --- CUSTOM CURSOR STYLE --- */
+        .cursor-dot, .cursor-outline {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 99999;
+            transition: opacity 0.3s ease-in-out, transform 0.2s ease-out;
+        }
+        .cursor-dot { width: 8px; height: 8px; background-color: #2563eb; }
+        .cursor-outline { width: 40px; height: 40px; border: 2px solid #2563eb; }
+        
+        .cursor-active .cursor-outline {
+            transform: translate(-50%, -50%) scale(1.5);
+            background-color: rgba(37, 99, 235, 0.1);
+            border-color: transparent;
+        }
+        
+        @media (min-width: 768px) {
+            body { cursor: none; }
+            a, button, input, textarea, .project-card { cursor: none; }
+        }
+
+        /* Hide custom cursor on touch devices */
+        @media (max-width: 767px) {
+            .cursor-dot, .cursor-outline { display: none !important; }
+        }
+
+        /* --- ANIMATIONS --- */
+        .fade-in { animation: fadeIn 1.2s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .blob { position: absolute; width: 250px; height: 250px; background: linear-gradient(180deg, rgba(37, 99, 235, 0.15) 0%, rgba(79, 70, 229, 0.15) 100%); filter: blur(40px); border-radius: 50%; z-index: -1; }
+        
+        .floating { animation: float 6s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .project-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .project-card:hover { transform: translateY(-10px) scale(1.02); }
+
+        /* --- MOBILE MENU --- */
+        #mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        /* --- WELCOME SCREEN & LOADING BAR --- */
+        #welcome-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0f172a;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .loading-container {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px auto 0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #loading-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: #2563eb;
+            box-shadow: 0 0 15px #2563eb;
+            transition: width 0.5s ease-out;
+        }
+
+        .no-scroll { overflow: hidden; }
+
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+
+        /* Mobile phones (< 640px) */
+        @media (max-width: 639px) {
+            .blob { width: 150px; height: 150px; }
+            
+            .project-card:hover { transform: none; }
+        }
+
+        /* Tablets (640px - 1023px) */
+        @media (min-width: 640px) and (max-width: 1023px) {
+            .blob { width: 200px; height: 200px; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased no-scroll">
+
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+
+    <div id="welcome-screen">
+        <div class="welcome-content px-6 text-center">
+            <div class="mb-4 sm:mb-6 inline-block p-3 sm:p-4 bg-blue-600 rounded-2xl animate-bounce">
+                <i class="fas fa-code text-2xl sm:text-3xl text-white"></i>
+            </div>
+            <h1 id="welcome-text" class="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tighter opacity-0 transition-all duration-1000 translate-y-4">
+                Welcome to <span class="text-blue-500">Faris Portfolio</span>
+            </h1>
+            <p id="welcome-sub" class="text-slate-400 mt-3 sm:mt-4 text-[8px] sm:text-[10px] uppercase tracking-[0.3em] sm:tracking-[0.5em] opacity-0 transition-all duration-1000 delay-300">
+                Software Engineering & UI/UX
+            </p>
+            
+            <div class="loading-container opacity-0 transition-opacity duration-700 delay-500" id="loader-parent">
+                <div id="loading-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed w-full bg-white/80 backdrop-blur-md z-[100] border-b border-slate-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+            <a href="#" class="text-lg sm:text-xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent tracking-tighter">Portofolio Faris</a>
+            <div class="hidden md:flex items-center space-x-8 font-semibold text-[11px] uppercase tracking-widest">
+                <a href="#home" class="hover:text-blue-600 transition-colors">Home</a>
+                <a href="#about" class="hover:text-blue-600 transition-colors">About</a>
+                <a href="#skills" class="hover:text-blue-600 transition-colors">Skills</a>
+                <a href="#portfolio" class="hover:text-blue-600 transition-colors">Projects</a>
+                <a href="#contact" class="px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all font-bold">Contact</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-xl text-slate-900 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors" aria-label="Toggle menu">
+                <i class="fas fa-bars-staggered" id="menu-icon"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden bg-white/95 backdrop-blur-md border-t border-slate-100">
+            <div class="flex flex-col px-6 py-4 space-y-1">
+                <a href="#home" class="mobile-link py-3 px-4 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">Home</a>
+                <a href="#about" class="mobile-link py-3 px-4 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">About</a>
+                <a href="#skills" class="mobile-link py-3 px-4 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">Skills</a>
+                <a href="#portfolio" class="mobile-link py-3 px-4 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">Projects</a>
+                <a href="#contact" class="mobile-link mt-2 py-3 px-4 text-sm font-bold text-white bg-blue-600 rounded-xl text-center hover:bg-blue-700 transition-all">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="relative min-h-screen flex items-center pt-16 sm:pt-20 overflow-hidden">
+        <div class="blob top-10 -left-10"></div>
+        <div class="blob bottom-0 -right-10"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-center">
+            <div data-aos="fade-right" data-aos-duration="1000" class="text-center md:text-left order-2 md:order-1">
+                <h1 class="text-4xl sm:text-5xl md:text-7xl font-black text-slate-900 leading-[1.1] mb-4 sm:mb-6">Faris <br><span class="text-blue-600">Alvaro</span></h1>
+                <p class="text-sm sm:text-base text-slate-500 mb-6 sm:mb-8 max-w-md mx-auto md:mx-0 leading-relaxed">Software Enginering And UI/UX</p>
+                <div class="flex flex-wrap gap-3 sm:gap-4 justify-center md:justify-start">
+                    <a href="#portfolio" class="bg-slate-900 text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-bold hover:bg-blue-600 transition-all text-xs sm:text-sm">View Portfolio</a>
+                    <a href="https://canva.link/2cyrsrjoqxy3qku" target="_blank" class="bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-all text-xs sm:text-sm flex items-center">
+                        <i class=" mr-2"></i> View cv
+                    </a>
+                </div>
+            </div>
+            <div class="order-1 md:order-2" data-aos="fade-left" data-aos-duration="1200">
+                <div class="relative w-48 sm:w-64 md:w-full max-w-[350px] mx-auto floating">
+                    <div class="bg-blue-600 rounded-[2rem] sm:rounded-[3rem] rotate-3"></div>
+                    <img src="FARIS ALVARO.png" class="relative z-10 rounded-[2rem] sm:rounded-[3rem] shadow-2xl grayscale hover:grayscale-0 transition-all duration-700">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-16 sm:py-20 md:py-24 bg-white overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 md:gap-16 items-center">
+                <div class="relative mx-auto w-full max-w-sm md:max-w-none" data-aos="zoom-in-right" data-aos-duration="1000">
+                    <div class="bg-slate-100 rounded-[2rem] sm:rounded-[3rem] -z-10 rotate-2"></div>
+                    <img src="FARIS ALVARO.png" class="rounded-[2rem] sm:rounded-[2.5rem] shadow-xl hover:scale-[1.02] transition-transform duration-500">
+                </div>
+                <div data-aos="fade-left" data-aos-duration="1000">
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mb-4 sm:mb-6 leading-tight text-center md:text-left">About Me</h2>
+                    <p class="text-slate-500 leading-relaxed mb-6 sm:mb-8 text-xs sm:text-sm">Saya bernama Faris Alvaro, saya berasal dari sekolah SMK PARIWISATA METLAND SCHOOL, Saya seorang developer yang berfokus pada pembuatan website modern, responsif, dan mudah digunakan. memiliki passion di bidang UI/UX serta selalu siap memecahkan masalah dengan solusi kreatif.Selain itu, saya juga memiliki pengalaman dalam mengembangkan berbagai project mulai dari website portofolio, aplikasi berbasis web, hingga desain antarmuka yang ramah pengguna. Saya percaya bahwa sebuah produk digital tidak hanya harus fungsional, tetapi juga memberikan pengalaman menyenangkan bagi penggunanya.</p>
+                    <div class="grid grid-cols-2 gap-6 sm:gap-8 border-t border-slate-100 pt-6 sm:pt-8">
+                        <div class="text-center md:text-left"><h4 class="font-black text-blue-600 text-2xl sm:text-3xl">5+</h4><p class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Projects Done</p></div>
+                        <div class="text-center md:text-left"><h4 class="font-black text-blue-600 text-2xl sm:text-3xl">2</h4><p class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Years Experience</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills" class="py-16 sm:py-20 md:py-24 bg-slate-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-10 sm:mb-16" data-aos="fade-up">Skills & Expertise</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+                <div class="bg-white p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-slate-100" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-3xl sm:text-4xl mb-4 sm:mb-6">🎨</div>
+                    <h3 class="text-lg sm:text-xl font-bold mb-2">Design</h3>
+                    <p class="text-slate-400 text-xs">UI/UX Design</p>
+                </div>
+                <div class="bg-white p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-slate-100" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-3xl sm:text-4xl mb-4 sm:mb-6">💻</div>
+                    <h3 class="text-lg sm:text-xl font-bold mb-2">Development</h3>
+                    <p class="text-slate-400 text-xs">Frontend, Responsive, Performance</p>
+                </div>
+                <div class="bg-white p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-slate-100 sm:col-span-2 md:col-span-1" data-aos="fade-up" data-aos-delay="300">
+                    <div class="text-3xl sm:text-4xl mb-4 sm:mb-6">📱</div>
+                    <h3 class="text-lg sm:text-xl font-bold mb-2">Mobile</h3>
+                    <p class="text-slate-400 text-xs">Mobile-First</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="portfolio" class="py-16 sm:py-20 md:py-24 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-6 sm:mb-8" data-aos="fade-up">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 mb-4">Featured Projects & Certificates</h2>
+                <div class="w-16 h-1 bg-blue-600 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="max-w-md mx-auto mb-10 sm:mb-16 px-2" data-aos="fade-up">
+                <div class="relative group">
+                    <input type="text" id="searchInput" placeholder="Cari project atau sertifikat..." class="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all text-sm font-medium">
+                    <div class="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="projectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+                <div class="project-card bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md border border-slate-50" data-aos="fade-up">
+                    <img src="Membership Bankkk.jpeg" alt="Project" class="h-40 sm:h-48 w-full object-cover bg-slate-200">
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h3 class="font-bold text-lg sm:text-xl mb-2 sm:mb-3">Membership Bank</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed mb-4 sm:mb-6">The Membership Bank system successfully provides a structured way to manage customer accounts, member data, and banking privileges.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-slate-100 text-[10px] font-bold text-slate-400 rounded-full uppercase">UI/UX</span>
+                            <span class="px-3 py-1 bg-slate-100 text-[10px] font-bold text-slate-400 rounded-full uppercase">Frontend</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md border border-slate-50" data-aos="fade-up" data-aos-delay="100">
+                    <img src="Purfect mart.jpeg" alt="Project" class="h-40 sm:h-48 w-full object-cover bg-slate-200">
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h3 class="font-bold text-lg sm:text-xl mb-2 sm:mb-3">Purfect Mart</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed mb-4 sm:mb-6">Purrfect Mart is a website where you can buy, goods and necessities, although it focuses more on games and electronic needs.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-[10px] font-bold text-blue-600 rounded-full uppercase">frontend</span>
+                            <span class="px-3 py-1 bg-blue-100 text-[10px] font-bold text-blue-600 rounded-full uppercase">Ui/Ux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md border border-slate-50" data-aos="fade-up" data-aos-delay="200">
+                    <img src="TRAVEKOLA.jpeg" alt="Project" class="h-40 sm:h-48 w-full object-cover bg-slate-200">
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h3 class="font-bold text-lg sm:text-xl mb-2 sm:mb-3">Project Ui/Ux E-Commerce </h3>
+                        <p class="text-slate-500 text-xs leading-relaxed mb-4 sm:mb-6">I created the Travekola project, inspired by the Traveloka app, as part of a project assignment given by my teacher.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-slate-100 text-[10px] font-bold text-slate-400 rounded-full uppercase">Ui/Ux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md border border-slate-50" data-aos="fade-up">
+                    <img src="stada certi 2.jpeg.png" alt="Certificate" class="h-40 sm:h-48 w-full object-cover bg-slate-200">
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h3 class="font-bold text-lg sm:text-xl mb-2 sm:mb-3">STADA CITRA ORTIENTATION</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed mb-4 sm:mb-6">successfully completing the orientation in indonesia (27 September 2024).</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-[10px] font-bold text-blue-600 rounded-full uppercase">Certification</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md border border-slate-50" data-aos="fade-up" data-aos-delay="100">
+                    <img src="sertif ibm.jpeg" alt="Certificate" class="h-40 sm:h-48 w-full object-cover bg-slate-200">
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h3 class="font-bold text-lg sm:text-xl mb-2 sm:mb-3">Information TECHNOLOGY (IT) fundamentals</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed mb-4 sm:mb-6">IBM Certificate</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-[10px] font-bold text-blue-600 rounded-full uppercase">Certification</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md border border-slate-50" data-aos="fade-up" data-aos-delay="100">
+                    <img src="selfi.png" alt="Certificate" class="h-40 sm:h-48 w-full object-cover bg-slate-200">
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h3 class="font-bold text-lg sm:text-xl mb-2 sm:mb-3">Website penyewaan gor futsal</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed mb-4 sm:mb-6">This GOR rental management system provides CRUD features to facilitate efficient field schedule management.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-[10px] font-bold text-blue-600 rounded-full uppercase">LARAVEL</span>
+                            <span class="px-3 py-1 bg-blue-100 text-[10px] font-bold text-blue-600 rounded-full uppercase">FRONTEND</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md border border-slate-50" data-aos="fade-up" data-aos-delay="200">
+                    <img src="smk metlandss (1).jpg" alt="SCHOOL" class="h-40 sm:h-48 w-full object-cover bg-slate-200">
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h3 class="font-bold text-lg sm:text-xl mb-2 sm:mb-3">SMK PARIWISATA METLAND SCHOOL</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed mb-4 sm:mb-6">MAJOR INFORMATION TECHNOLOGY</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-slate-100 text-[10px] font-bold text-slate-400 rounded-full uppercase">Education</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 bg-slate-50 border-t border-slate-100">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
+                <div data-aos="fade-right">
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mb-3 sm:mb-4 text-center lg:text-left">Get In <span class="text-blue-600">Touch</span></h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-6 sm:mb-8 text-center lg:text-left">Punya pertanyaan atau ingin memulai proyek? Hubungi saya melalui media berikut.</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <a href="#" class="flex items-center p-3 bg-white rounded-xl border border-slate-100 hover:shadow-md transition-all group">
+                            <div class="w-8 h-8 bg-pink-50 text-pink-500 rounded-lg flex items-center justify-center mr-3 flex-shrink-0"><i class="fab fa-instagram text-sm"></i></div>
+                            <div class="min-w-0"><p class="text-[8px] text-slate-400 font-bold uppercase">Instagram</p><p class="text-[10px] font-bold text-slate-700 truncate">faris.alvr_</p></div>
+                        </a>
+                        <a href="tel:+6281311254340" class="flex items-center p-3 bg-white rounded-xl border border-slate-100 hover:shadow-md transition-all group">
+                            <div class="w-8 h-8 bg-green-50 text-green-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-phone text-sm"></i></div>
+                            <div class="min-w-0"><p class="text-[8px] text-slate-400 font-bold uppercase">WhatsApp</p><p class="text-[10px] font-bold text-slate-700 truncate">+62 81311254340</p></div>
+                        </a>
+                        <a href="mailto:farisalvaro55@gmail.com" class="sm:col-span-2 flex items-center p-3 bg-white rounded-xl border border-slate-100 hover:shadow-md transition-all group">
+                            <div class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-envelope text-sm"></i></div>
+                            <div class="min-w-0"><p class="text-[8px] text-slate-400 font-bold uppercase">Email</p><p class="text-[10px] font-bold text-slate-700 truncate">farisalvaro55@gmail.com</p></div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] shadow-xl border border-slate-50" data-aos="fade-left">
+                    <form id="contactForm" onsubmit="event.preventDefault(); showSuccessMessage();" class="space-y-4">
+                        <input type="text" placeholder="Nama" required class="w-full border-b border-slate-200 py-3 focus:border-blue-600 outline-none transition-colors text-xs bg-transparent">
+                        <input type="email" placeholder="Email" required class="w-full border-b border-slate-200 py-3 focus:border-blue-600 outline-none transition-colors text-xs bg-transparent">
+                        <textarea placeholder="Pesan" required rows="3" class="w-full border-b border-slate-200 py-3 focus:border-blue-600 outline-none transition-colors text-xs bg-transparent"></textarea>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3.5 sm:py-4 rounded-xl font-bold text-xs hover:bg-slate-900 transition-all active:scale-95">Kirim Pesan</button>
+                        <p id="successMessage" class="hidden text-center text-green-600 font-bold text-[10px] mt-4 uppercase tracking-widest">
+                            Gaspol! Pesanmu sudah masuk ke radar saya.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 sm:py-12 bg-white text-center border-t border-slate-100">
+        <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.3em]">© 2025 Faris Alvaro.</p>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: false, mirror: true });
+
+        // Custom Cursor Logic (desktop only)
+        const cursorDot = document.getElementById("cursor-dot");
+        const cursorOutline = document.getElementById("cursor-outline");
+        if (window.innerWidth >= 768) {
+            window.addEventListener("mousemove", (e) => {
+                const posX = e.clientX; const posY = e.clientY;
+                cursorDot.style.left = `${posX}px`; cursorDot.style.top = `${posY}px`;
+                cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
+            });
+            const interactables = document.querySelectorAll("a, button, input, textarea, .project-card");
+            interactables.forEach(el => {
+                el.addEventListener("mouseenter", () => document.body.classList.add("cursor-active"));
+                el.addEventListener("mouseleave", () => document.body.classList.remove("cursor-active"));
+            });
+        }
+
+        // MOBILE MENU TOGGLE
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        menuToggle.addEventListener('click', () => {
+            const isOpen = mobileMenu.classList.contains('open');
+            if (isOpen) {
+                mobileMenu.classList.remove('open');
+                menuIcon.className = 'fas fa-bars-staggered';
+            } else {
+                mobileMenu.classList.add('open');
+                menuIcon.className = 'fas fa-xmark';
+            }
+        });
+
+        // Close mobile menu when a link is clicked
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                menuIcon.className = 'fas fa-bars-staggered';
+            });
+        });
+
+        // Close mobile menu on resize to desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                mobileMenu.classList.remove('open');
+                menuIcon.className = 'fas fa-bars-staggered';
+            }
+        });
+
+        // WELCOME SCREEN & LOADING LOGIC
+        window.addEventListener('DOMContentLoaded', () => {
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const welcomeText = document.getElementById('welcome-text');
+            const welcomeSub = document.getElementById('welcome-sub');
+            const loaderParent = document.getElementById('loader-parent');
+            const loadingBar = document.getElementById('loading-bar');
+
+            // 1. Munculkan Teks Terlebih dahulu
+            setTimeout(() => { welcomeText.classList.remove('opacity-0', 'translate-y-4'); }, 200);
+            setTimeout(() => { welcomeSub.classList.remove('opacity-0'); }, 800);
+            
+            // 2. Munculkan Container Loading
+            setTimeout(() => { loaderParent.classList.remove('opacity-0'); }, 1200);
+
+            // 3. Jalankan Loading Bar (Simulasi loading aset)
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    // 4. Setelah Full, Sembunyikan Welcome Screen
+                    setTimeout(() => {
+                        welcomeScreen.style.opacity = '0';
+                        document.body.classList.remove('no-scroll');
+                        setTimeout(() => { welcomeScreen.style.display = 'none'; }, 1000);
+                    }, 500);
+                } else {
+                    width += Math.random() * 15; // Kecepatan acak biar natural
+                    if(width > 100) width = 100;
+                    loadingBar.style.width = width + '%';
+                }
+            }, 200);
+        });
+
+        // Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const filter = searchInput.value.toLowerCase();
+            const cards = document.querySelectorAll('.project-card');
+            cards.forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                const desc = card.querySelector('p').innerText.toLowerCase();
+                card.style.display = (title.includes(filter) || desc.includes(filter)) ? "" : "none";
+            });
+        });
+
+        function showSuccessMessage() {
+            const msg = document.getElementById('successMessage');
+            msg.classList.remove('hidden');
+            document.getElementById('contactForm').reset();
+            setTimeout(() => { msg.classList.add('hidden'); }, 5000);
+        }
+    </script>
+</body>
+</html>
